@@ -2,6 +2,8 @@ import torch
 from torch.nn import Module
 from enum import Enum
 
+from submissions.stochastic_interpolant.guidance import PlacementGuidance
+
 class InterpolantType(Enum):
     LINEAR = 0
     # POW3 interpolant from: 
@@ -104,7 +106,7 @@ class StochasticInterpolant:
     def guided_sample(self, 
                     x0: torch.Tensor, 
                     obv: torch.Tensor, 
-                    guidance_f: Module, 
+                    guidance_f: PlacementGuidance, 
                     steps: int = 100) -> list[torch.Tensor]:
         # sampling with guidance from: 
         # Chip Placement with Diffusion Models
@@ -146,7 +148,7 @@ class StochasticInterpolant:
             trajectories.append(xt)
         return trajectories
 
-    @torch.no_grad()
+    @torch.no_grad()    
     def sample(self, x0: torch.Tensor, obv: torch.Tensor, steps: int = 100) -> list[torch.Tensor]:
         x0 = x0.to(self.device)
         xt = x0.clone()
