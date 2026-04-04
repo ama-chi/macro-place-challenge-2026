@@ -112,7 +112,7 @@ class StochasticInterpolant:
             t = t.view(-1, *([1] * (xt.dim() - 1))).clamp(min = 1e-6, max = 1 - 1e-6)
             v = self.v_model(xt, t, obv)
             s = self.s_model(xt, t, obv)
-            z = torch.rand_like(xt)
+            z = torch.randn_like(xt)
             eps = self.epsilon(t)
             if self.train_b:
                 b = self.b_model(xt, t, obv)
