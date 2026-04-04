@@ -22,6 +22,7 @@ class StochasticInterpolant:
                  b_model: Module | None,
                  device: torch.device,
                  train_b: bool = False,
+                 w_g: float = 1.0,
                  c: int = 3,
                  d: float = .3):
         
@@ -29,6 +30,7 @@ class StochasticInterpolant:
         self.interpolant_type = interpolant_type
         self.d = d
         self.c = c
+        self.w_g = w_g
         self.device = device
 
         if train_b and b_model is None:
@@ -98,6 +100,51 @@ class StochasticInterpolant:
             raise NotImplementedError
     
     # sampling
+
+    def guided_sample(self, 
+                    x0: torch.Tensor, 
+                    obv: torch.Tensor, 
+                    guidance_f: Module, 
+                    steps: int = 100) -> list[torch.Tensor]:
+        # sampling with guidance from: 
+        # Chip Placement with Diffusion Models
+        # https://arxiv.org/pdf/2407.12282
+        x0 = x0.to(self.device)
+        xt = x0.clone()
+        obv = obv.to(self.device)
+        dt: float = 1.0 / steps
+
+        trajectories = []
+        for i in range(steps):
+            t = torch.full((x0.shape[0], 1), i / steps, device=self.device)
+            t = t.view(-1, *([1] * (xt.dim() - 1))).clamp(min = 1e-6, max = 1 - 1e-6)
+
+            with torch.no_grad():
+                v = self.v_model(xt, t, obv)
+                s = self.s_model(xt, t, obv)
+
+            z = torch.randn_like(xt)
+            eps = self.epsilon(t)
+            if self.train_b:
+                with torch.no_grad():
+                    b = self.b_model(xt, t, obv)
+            else:
+                b = v - self.gamma_dot(t) * self.gamma(t) * s
+
+            # apply guidance
+            with torch.enable_grad():
+                xt_g = xt.detach().requires_grad_(True)
+                dg_dx = torch.autograd.grad(guidance_f(xt_g, obv).sum(), xt_g)[0]
+
+            dg_dx = dg_dx / (dg_dx.norm(dim=-1, keepdim=True) + 1e-8)
+            guidance = dg_dx * self.w_g * (1 - t) * eps
+
+            bF = b + eps * s + guidance
+            xt = xt + bF * dt + torch.sqrt(2 * eps) * z 
+            xt = xt.detach()
+
+            trajectories.append(xt)
+        return trajectories
 
     @torch.no_grad()
     def sample(self, x0: torch.Tensor, obv: torch.Tensor, steps: int = 100) -> list[torch.Tensor]:
