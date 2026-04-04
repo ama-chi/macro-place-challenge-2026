@@ -62,14 +62,13 @@ class StochasticInterpolant:
             return v_loss + s_loss + b_loss
 
     def loss_v(self, xt: torch.Tensor, t: torch.Tensor, obv: torch.Tensor, dI_dt: torch.Tensor) -> torch.Tensor:
-        v = dI_dt + self.gamma(t)
-        return ((self.v_model(xt, t, obv) - v) ** 2).mean()
+        return ((self.v_model(xt, t, obv) - dI_dt) ** 2).mean()
 
     def loss_s(self, xt: torch.Tensor, t: torch.Tensor, obv: torch.Tensor, z: torch.Tensor) -> torch.Tensor:
         return ((self.s_model(xt, t, obv) - z) ** 2).mean() 
 
     def loss_b(self, xt: torch.Tensor, t: torch.Tensor, obv: torch.Tensor, dI_dt: torch.Tensor, z: torch.Tensor) -> torch.Tensor:
-        return ((self.b_model(xt, t, obv) - dI_dt * z) ** 2).mean()
+        return ((self.b_model(xt, t, obv) - dI_dt * self.gamma_dot(t) * z) ** 2).mean()
     
     # interpolant
 
@@ -157,5 +156,5 @@ class StochasticInterpolant:
 
         if self.train_b:
             self.b_model.load_state_dict(checkpoint["b_model"])
-            self.b_model.to(self.device)
+            self._model.to(self.device)
         
