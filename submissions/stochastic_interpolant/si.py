@@ -65,7 +65,7 @@ class StochasticInterpolant:
         return ((self.v_model(xt, t, obv) - dI_dt) ** 2).mean()
 
     def loss_s(self, xt: torch.Tensor, t: torch.Tensor, obv: torch.Tensor, z: torch.Tensor) -> torch.Tensor:
-        return ((self.s_model(xt, t, obv) - z) ** 2).mean() 
+        return ((self.s_model(xt, t, obv) + z * self.inv_gamma(t)) ** 2).mean() 
 
     def loss_b(self, xt: torch.Tensor, t: torch.Tensor, obv: torch.Tensor, dI_dt: torch.Tensor, z: torch.Tensor) -> torch.Tensor:
         return ((self.b_model(xt, t, obv) - dI_dt * self.gamma_dot(t) * z) ** 2).mean()
@@ -77,6 +77,9 @@ class StochasticInterpolant:
 
     def gamma(self, t: torch.Tensor) -> torch.Tensor:
         return self.d * torch.sqrt(2 * t * (1 - t))
+    
+    def inv_gamma(self, t: torch.Tensor) -> torch.Tensor:
+        return 1 / (self.gamma(t) + 1e-9)
     
     def interpolant(self, x0: torch.Tensor, x1: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
         if self.interpolant_type == InterpolantType.LINEAR:
