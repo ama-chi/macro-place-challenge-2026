@@ -65,7 +65,7 @@ Partcl develops GPU-accelerated systems for physical design that run orders of m
 - All teams may only submit one algorithm.
 - **All winning implementations must be made open-source under Apache 2.0 or GPL**
 - All submissions must be registered via this [Submission Link](https://forms.gle/YDRtYV5Vq68SZgKW9).
-- All submissions must be under 1 hour end-to-end runtime for the macro placement algorithm.
+- All submissions must be under 1 hour end-to-end runtime (per benchmark) for the macro placement algorithm.
 - All submissions will be evaluated on a AMD EPYC 9655P with 16 cores + 100GB of memory and an NVIDIA RTX 6000 Ada 48GB.
 
 ## Additional Rules
@@ -218,16 +218,24 @@ Classical methods (SA, RePlAce) have been refined for decades but still have roo
 
 ## 🏅 Leaderboard
 
-Submissions are ranked by **average proxy cost** across all 18 IBM benchmarks (lower is better). Zero overlaps required on all benchmarks.
+Submissions are ranked by **average proxy cost** across all 17 IBM benchmarks (lower is better). Zero overlaps required on all benchmarks. Scores are unverified until confirmed by judges.
 
-| Rank | Team | Avg Proxy Cost | Best | Worst | Overlaps | Runtime |
-|------|------|---------------|------|-------|----------|---------|
-| — | RePlAce (baseline) | **1.4578** | 0.9976 | 1.8370 | 0 | — |
-| 1 | Will (Partcl) | **1.5338** | 1.1625 | 1.7965 | 0 | 35s |
-| — | SA (baseline) | 2.1251 | 1.3166 | 3.6726 | 0 | — |
-| — | Greedy Row (demo) | 2.2109 | 1.6728 | 2.7696 | 0 | 0.3s |
+| Rank | Team | Avg Proxy Cost | Best | Worst | Overlaps | Runtime | Verified |
+|------|------|---------------|------|-------|----------|---------|----------|
+| 1 | "UT Austin" - AS (DREAMPlace Analytical) | **1.4076** | — | — | 0 | 17s/bench | |
+| 2 | "BakaBobo" (Spread+Refine) | **1.4403** | — | — | 0 | 212s/bench | |
+| — | RePlAce (baseline) | **1.4578** | 0.9976 | 1.8370 | 0 | — | :white_check_mark: |
+| 3 | "Convex Optimization" (UWaterloo Student) | **1.4556** | — | — | 0 | 16s total | |
+| 4 | "another Waterloo kid" (Batched Nesterov GP) | **1.4568** | — | — | 0 | 118s/bench | |
+| 5 | "oracleX" (Oracle) | **1.5130** | — | — | 0 | 3min/bench | |
+| 6 | "CA" (congestion_aware) | **1.5238** | — | — | 0 | 13s/bench | |
+| 7 | Will Seed (Partcl) | **1.5338** | 1.1625 | 1.7965 | 0 | 35s total | :white_check_mark: |
+| 8 | "UT Austin" - RH (DREAMPlace) | **1.6037** | — | — | 0 | 4.5s/bench | |
+| 9 | "UT Austin" - CT (PROXYCost) | **1.8706** | — | — | 0 | 187s/bench | |
+| — | SA (baseline) | 2.1251 | 1.3166 | 3.6726 | 0 | — | :white_check_mark: |
+| — | Greedy Row (demo) | 2.2109 | 1.6728 | 2.7696 | 0 | 0.3s total | :white_check_mark: |
 
-*Submit your results to appear on the leaderboard!*
+*Submit your results via the [Submission Link](https://forms.gle/YDRtYV5Vq68SZgKW9)!*
 
 ## 🤔 FAQ
 
